@@ -1,0 +1,14 @@
+.{
+    .name = "loqui",
+    .version = "0.1.0",
+    .dependencies = .{
+        .ansi_term = .{
+            .url = "https://github.com/ziglibs/ansi-term/archive/1bc351aabfd6592ee4a2fa0f28f0e7f11bdbefff.tar.gz",
+            .hash = "1220fea583e973d14d9a61f8179b7c1056fc90f8d6fc9360c10bc683e32482751dbf",
+        },
+        .tomlz = .{
+            .url = "https://github.com/mattyhall/tomlz/archive/4928d38e9bb682a9966ffe7f41230435d0111b1e.tar.gz",
+            .hash = "12202b57d7b46fff8d16a17371c4f9b711a56b866f0cd11844e4243c09343a2c4c6d",
+        },
+    },
+}
