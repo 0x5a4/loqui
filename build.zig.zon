@@ -1,6 +1,6 @@
 .{
     .name = "loqui",
-    .version = "0.1.0",
+    .version = "0.1.0-alpha",
     .dependencies = .{
         .ansi_term = .{
             .url = "https://github.com/ziglibs/ansi-term/archive/1bc351aabfd6592ee4a2fa0f28f0e7f11bdbefff.tar.gz",

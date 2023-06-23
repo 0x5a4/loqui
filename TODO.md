@@ -1,0 +1,53 @@
+- [ ] Game settings
+    - [X] Starting room
+    - [ ] Disable builtin commands
+    - [X] Startup text
+- [ ] Load Base components  
+    - [ ] spell and typecheck obvious mistakes
+    - [X] Rooms
+    - [X] Interactables
+    - [X] Actions
+    - [X] Predicates
+    - [ ] Items
+- [X] Player
+    - [X] Inventory
+- [ ] Interface
+    - [X] Basic prompts
+    - [ ] Animated Text
+    - [ ] Selections
+- [X] Rooms
+    - [ ] Display name
+    - [X] Door syntax
+- [ ] Interactables
+    - [ ] Block interactions
+    - [ ] Hide
+    - [ ] Display name
+    - [X] Requirements
+    - [X] Display text
+    - [X] Display text when locked(requirement not fulfilled)
+    - [X] Action
+    - [X] Locked Action
+- [ ] Items
+    - [ ] Name
+    - [ ] Description
+- [X] Commands
+    - [X] Builtin commands
+    - [ ] Help Text(?)
+- [ ] Lua Scripting
+    - [ ] Define Commands
+    - [ ] Store custom values
+    - [ ] Manipulate Player
+        - [ ] Get Items
+        - [ ] Give Item
+        - [ ] Remove Item
+        - [ ] Move
+- [ ] Generic Input/Output interface(similar to std.mem.Allocator?)
+    - [ ] Integration Tests
+- [ ] Define Dialog
+- [ ] NPC syntax
+- [ ] Load/Save game
+- [ ] "Compile the Game" (allow proper distribution)
+- [ ] Add custom Art
+- [ ] TUI-style interface
+- [ ] Web-based interface(?)
+- [ ] Native GUI interface(?)
