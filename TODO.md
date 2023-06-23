@@ -16,17 +16,17 @@
     - [ ] Animated Text
     - [ ] Selections
 - [X] Rooms
-    - [ ] Display name
     - [X] Door syntax
+    - [ ] Display name
 - [ ] Interactables
-    - [ ] Block interactions
+    - [X] Block interactions
     - [ ] Hide
     - [ ] Display name
     - [X] Requirements
     - [X] Display text
     - [X] Display text when locked(requirement not fulfilled)
     - [X] Action
-    - [X] Locked Action
+    - [X] Locked Action(requirement not fulfilled)
 - [ ] Items
     - [ ] Name
     - [ ] Description
@@ -49,5 +49,4 @@
 - [ ] "Compile the Game" (allow proper distribution)
 - [ ] Add custom Art
 - [ ] TUI-style interface
-- [ ] Web-based interface(?)
 - [ ] Native GUI interface(?)

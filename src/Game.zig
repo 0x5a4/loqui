@@ -6,6 +6,7 @@ const Self = @This();
 
 const ArrayList = std.ArrayList;
 const Allocator = std.mem.Allocator;
+const HashMap = std.AutoHashMap;
 const StringHashMap = std.StringHashMap;
 const StringSet = StringHashMap(void);
 
@@ -51,6 +52,7 @@ rooms: ArrayList(components.Room),
 room_map: StringHashMap(usize),
 
 interactables: ArrayList(components.Interactable),
+interactables_locked: HashMap(usize, void),
 
 text: ArrayList([]const u8),
 text_randomized: ArrayList([]const usize),
@@ -71,6 +73,7 @@ pub fn init(alloc: Allocator) Self {
         .rooms = ArrayList(components.Room).init(alloc),
         .room_map = StringHashMap(usize).init(alloc),
         .interactables = ArrayList(components.Interactable).init(alloc),
+        .interactables_locked = HashMap(usize, void).init(alloc),
         .text = ArrayList([]const u8).init(alloc),
         .text_randomized = ArrayList([]const usize).init(alloc),
         .action_params = ArrayList([]const u8).init(alloc),
@@ -163,10 +166,12 @@ pub fn executeAction(self: *Self, action: components.Action) void {
         .give_item => |param_index| {
             const param = self.action_params.items[param_index];
 
-            // all of this feels wrong. maybe count items upfront and guarantee room?
-            // another table maybe?
-            const item = self.alloc.dupe(u8, param) catch return;
-            self.player.inventory.put(item, {}) catch return;
+            if (!self.player.inventory.contains(param)) {
+                // all of this feels wrong. maybe count items upfront and guarantee room?
+                // another table maybe?
+                const item = self.alloc.dupe(u8, param) catch return;
+                self.player.inventory.put(item, {}) catch return;
+            }
         },
         .remove_item => |param_index| {
             const param = self.action_params.items[param_index];
@@ -198,11 +203,19 @@ pub fn showText(self: *const Self, text: components.Text) void {
     }
 }
 
-pub fn interactWith(self: *Self, interactable_index: usize) void {
+pub fn interactWith(self: *Self, interactable_index: usize) !void {
+    if (self.interactables_locked.contains(interactable_index)) {
+        return;
+    }
+    
     const interactable = self.interactables.items[interactable_index];
 
-    // TODO: check if this is locked(via once)
     if (self.checkPredicate(interactable.require)) {
+        // again, is there a way we can make this infallible?
+        if (interactable.once) {
+            try self.interactables_locked.put(interactable_index, {});
+        }
+        
         self.executeAction(interactable.on_interact);
         self.showText(interactable.text);
     } else {
@@ -373,6 +386,7 @@ pub fn deinit(self: *Self) void {
     self.config.deinit(self.alloc);
     self.player.deinit(self.alloc);
     self.interactables.deinit();
+    self.interactables_locked.deinit();
 
     freeAll(u8, self.alloc, self.text);
     freeAll(usize, self.alloc, self.text_randomized);

@@ -30,7 +30,7 @@ pub fn lookAround(_: []const u8, _: [][]const u8, game: *Game) void {
     var iabl_iter = room.interactables.valueIterator();
     while (iabl_iter.next()) |iabl_index| {
         const iabl = game.interactables.items[iabl_index.*];
-        if (iabl.group != null) continue;
+        if (iabl.group != null or iabl.hidden) continue;
         game.print(" {s}\n", .{iabl.id});
     }
 }
@@ -64,7 +64,7 @@ pub fn goto(_: []const u8, args: [][]const u8, game: *Game) void {
         const iabl = game.interactables.items[iabl_index];
 
         if (std.mem.eql(u8, args[0], iabl.id)) {
-            game.interactWith(iabl_index);
+            game.interactWith(iabl_index) catch return;
         }
     }
 }
@@ -79,7 +79,7 @@ pub fn touch(_: []const u8, args: [][]const u8, game: *Game) void {
     const room = game.rooms.items[room_index];
 
     if (room.interactables.get(args[0])) |iabl_index| {
-        game.interactWith(iabl_index);
+        game.interactWith(iabl_index) catch return;
     }
 }
 
