@@ -10,7 +10,6 @@ Rooms have the following properties:
  name         | required? | type   | description
 --------------|-----------|--------|-----------------
 id            | yes       | string | used to identify this room in e.g. doors
-display-name  | no        | string | used instead of the id if this is displayed somewhere
 doors         | no        | array  | a list of doors attached to this room
 interactables | no        | array  | a list of interactables attached to this room
 
@@ -21,7 +20,6 @@ interactables | no        | array  | a list of interactables attached to this ro
 
 # A simple room can be created like this. 
 [rooms.<room-id>]
-display-name = "very cool name" # fields are specified like this
 ```
 ## Attaching Interactables
 For an explanation of interactables and their fields, see [their own page](Interactables.md).
@@ -44,6 +42,8 @@ For an explanation of interactables and their fields, see [their own page](Inter
 ## Creating Doors
 Since doors are such a common thing, and are rather tedious to create using
 the normal Interactable-Syntax, they have a special shortcut!
+
+They automatically move the player to the room whose name is the id of the door.
 
 ```toml
 # Note: values within "<>" brackets need to be replaced with something

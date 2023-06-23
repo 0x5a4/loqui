@@ -7,6 +7,7 @@ and lua scripting(TODO).
 ## Documentation
 *(Documentation is very much incomplete)*
 
+- [Introduction](doc/Introduction.md)
 - [Rooms](doc/Rooms.md)
 - [Interactables](doc/Interactables.md)
 - [Commands](doc/Commands.md)

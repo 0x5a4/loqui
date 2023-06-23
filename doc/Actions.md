@@ -1,5 +1,5 @@
 # Actions
-TODO
+Actions give life to interactables. Without them they are nothing more than a sign with some text on it.
 
 They are specified like this:  
 `<action-id>:<param>`

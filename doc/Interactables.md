@@ -32,5 +32,20 @@ wont make them talk to you and will most likely get you arrested.
 Interactables are always part of the default group.
 
 ## Syntax
+Also see the [Room syntax](Rooms.md), [Action syntax](Actions.md) and [Predicate syntax](Predicates.md).
 
-## Examples
+```toml
+# Note: values within "<>" brackets need to be replaced with something
+# <id> should be replaced with e.g. "drawer"
+
+[rooms.<room-id>.interactable.<id>]
+text = "some text"
+
+[rooms.<room-id>.interactable.<id>]
+text = [
+    "i",
+    "am",
+    "randomized",
+]
+
+```
