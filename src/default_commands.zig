@@ -44,6 +44,27 @@ pub fn inv(_: []const u8, _: [][]const u8, game: *Game) void {
     }
 }
 
+pub fn map(_: []const u8, _: [][]const u8, game: *Game) void {
+    const room_index = game.player.room_index;
+    const room = game.rooms.items[room_index];
+
+    const group = room.groups.get("doors") orelse {
+        game.print("No doors within this room", .{});
+        return;
+    };
+
+    game.print("You take a look around. The doors seem to lead to these places:\n", .{});
+
+    var i: usize = 0;
+    while (i < group.items.len) : (i += 1) {
+        const iabl_index = group.items[i];
+        const iabl = game.interactables.items[iabl_index];
+
+        game.print(" {s}\n", .{iabl.id});
+    }
+
+}
+
 pub fn goto(_: []const u8, args: [][]const u8, game: *Game) void {
     if (args.len == 0) {
         game.print("You must specify where to go to\n", .{});

@@ -38,6 +38,7 @@ pub fn main() !void {
     try game.createCommand("tp", default_commands.teleport);
     try game.createCommand("look-around", default_commands.lookAround);
     try game.createCommand("touch", default_commands.touch);
+    try game.createCommand("map", default_commands.map);
     try game.createCommand("goto", default_commands.goto);
     try game.createCommand("inv", default_commands.inv);
     try game.createCommand("help", default_commands.help);
