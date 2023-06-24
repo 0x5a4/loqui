@@ -32,9 +32,9 @@ pub fn load(game: *Game, room: *Room, table: *const Table) !void {
 fn loadInteractable(game: *Game, room: *Room, id: []const u8, table: *const Table) !void {
     if (room.interactables.contains(id)) {
         //TODO: warn user about implicitly named interactables like doors?
-        std.log.warn("interactable {s}.{s} is being created multiple times. this is propably unintended behaviour!", .{room.id, id});
+        std.log.warn("interactable {s}.{s} is being created multiple times. this is propably unintended behaviour!", .{ room.id, id });
     }
-    
+
     const iabl = try game.createInteractable(room, id, table.getString("group"));
 
     // display-name
@@ -77,7 +77,7 @@ fn loadInteractable(game: *Game, room: *Room, id: []const u8, table: *const Tabl
     if (table.getBool("hidden")) |value| {
         iabl.hidden = value;
     }
-    
+
     // once
     if (table.getBool("once")) |value| {
         iabl.once = value;

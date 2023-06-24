@@ -60,7 +60,7 @@ fn loadDoors(game: *Game, room: *Room, table: *const Table) !void {
 fn loadDoor(game: *Game, room: *Room, to: []const u8, table: *const Table) !void {
     if (room.interactables.contains(to)) {
         //TODO: warn user about implicitly named interactables like doors?
-        std.log.warn("interactable {s}.{s} is being created multiple times. this is propably unintended behaviour!", .{room.id, to});
+        std.log.warn("interactable {s}.{s} is being created multiple times. this is propably unintended behaviour!", .{ room.id, to });
     }
 
     const iabl = try game.createInteractable(room, to, "doors");

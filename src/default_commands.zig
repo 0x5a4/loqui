@@ -62,7 +62,6 @@ pub fn map(_: []const u8, _: [][]const u8, game: *Game) void {
 
         game.print(" {s}\n", .{iabl.id});
     }
-
 }
 
 pub fn goto(_: []const u8, args: [][]const u8, game: *Game) void {

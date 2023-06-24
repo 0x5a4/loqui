@@ -207,7 +207,7 @@ pub fn interactWith(self: *Self, interactable_index: usize) !void {
     if (self.interactables_locked.contains(interactable_index)) {
         return;
     }
-    
+
     const interactable = self.interactables.items[interactable_index];
 
     if (self.checkPredicate(interactable.require)) {
@@ -215,7 +215,7 @@ pub fn interactWith(self: *Self, interactable_index: usize) !void {
         if (interactable.once) {
             try self.interactables_locked.put(interactable_index, {});
         }
-        
+
         self.executeAction(interactable.on_interact);
         self.showText(interactable.text);
     } else {
@@ -281,8 +281,8 @@ pub fn createInteractable(
         if (!maybe_group.found_existing) {
             maybe_group.key_ptr.* = try self.alloc.dupe(u8, group_name);
             maybe_group.value_ptr.* = ArrayList(usize).init(self.alloc);
-        } 
-        
+        }
+
         interactable_ptr.*.group = maybe_group.key_ptr.*;
         try maybe_group.value_ptr.*.append(index);
     }

@@ -31,7 +31,7 @@ pub fn load(alloc: Allocator, dir: *const Dir, game: *Game) !void {
             error.FileNotFound => {
                 std.log.err("'game.toml' was not found", .{});
             },
-            else => {}
+            else => {},
         }
 
         return err;

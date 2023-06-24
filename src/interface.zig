@@ -58,7 +58,7 @@ pub fn prompt(
     while (true) {
         if (!options.same_line) {
             try outStream.writeByte('\n');
-        } else if (question.len > 0){
+        } else if (question.len > 0) {
             try outStream.writeByte(' '); // no one wants question and answer right beside each other
         }
 

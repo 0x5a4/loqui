@@ -23,7 +23,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     exe.addModule("tomlz", tomlz_dep.module("tomlz"));
-    
+
     b.installArtifact(exe);
 
     // Run Step
@@ -59,4 +59,3 @@ pub fn build(b: *std.Build) void {
     const play_step = b.step("play", "Run the app. Automatically sets the content dir to './game'");
     play_step.dependOn(&play_cmd.step);
 }
-
