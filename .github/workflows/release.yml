@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        target: [x86_64-linux, x86_64-macos]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Zig
+        uses: goto-bus-stop/setup-zig@v2
+        with:
+          version: 0.11.0-dev.3787+9d66481e3
+
+      - name: Compile
+        run: zig build -Doptimize=ReleaseSafe -Dtarget=${{ matrix.target }}
+
+      - name: Strip
+        run: strip zig-out/bin/loqui
+
+      - name: Rename
+        run: mv zig-out/bin/loqui zig-out/bin/loqui-${{ matrix.target }}
+
+      - name: Upload
+        run: gh release upload ${{ github.ref }} zig-out/bin/*
