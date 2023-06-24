@@ -93,7 +93,6 @@ pub fn run(self: *Self) RuntimeError!void {
         if (self.room_map.get(starting_room)) |room_index| {
             self.player.room_index = room_index;
         } else {
-            //TODO: throw an error instead
             std.log.err("non-existent starting room '{s}'", .{starting_room});
             return RuntimeError.InvalidStartingRoom;
         }
@@ -128,7 +127,7 @@ pub fn run(self: *Self) RuntimeError!void {
         const command_args = command_buffer.items[1..];
 
         if (self.commands.get(command_name)) |commandfn| {
-            commandfn(command_name, command_args, self);
+            try commandfn(command_name, command_args, self);
         } else if (std.mem.eql(u8, command_name, "quit")) {
             break;
         } else {
@@ -155,7 +154,7 @@ pub fn print(_: *const Self, comptime fmt: []const u8, args: anytype) void {
     stdout.print(fmt, args) catch {};
 }
 
-pub fn executeAction(self: *Self, action: components.Action) void {
+pub fn executeAction(self: *Self, action: components.Action) AllocError!void {
     switch (action) {
         .none => {},
         .move => |param_index| {
@@ -174,8 +173,8 @@ pub fn executeAction(self: *Self, action: components.Action) void {
             if (!self.player.inventory.contains(param)) {
                 // all of this feels wrong. maybe count items upfront and guarantee room?
                 // another table maybe?
-                const item = self.alloc.dupe(u8, param) catch return;
-                self.player.inventory.put(item, {}) catch return;
+                const item = try self.alloc.dupe(u8, param); 
+                try self.player.inventory.put(item, {});
             }
         },
         .remove_item => |param_index| {
@@ -216,15 +215,14 @@ pub fn interactWith(self: *Self, interactable_index: usize) !void {
     const interactable = self.interactables.items[interactable_index];
 
     if (self.checkPredicate(interactable.require)) {
-        // again, is there a way we can make this infallible?
         if (interactable.once) {
             try self.interactables_locked.put(interactable_index, {});
         }
 
-        self.executeAction(interactable.on_interact);
+        try self.executeAction(interactable.on_interact);
         self.showText(interactable.text);
     } else {
-        self.executeAction(interactable.on_interact_locked);
+        try self.executeAction(interactable.on_interact_locked);
         self.showText(interactable.text_locked);
     }
 }

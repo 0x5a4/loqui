@@ -15,7 +15,7 @@ pub fn build(b: *std.Build) void {
         .Debug => false,
         .ReleaseSafe, .ReleaseFast, .ReleaseSmall => true,
     };
-    
+
     // Dependencies
     const ansi_term_dep = b.dependency("ansi_term", .{
         .target = target,
@@ -28,7 +28,7 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
     exe.addModule("tomlz", tomlz_dep.module("tomlz"));
-    
+
     b.installArtifact(exe);
 
     // Run Step

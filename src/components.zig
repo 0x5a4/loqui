@@ -1,11 +1,12 @@
 const std = @import("std");
 const StringHashMap = std.StringHashMap;
 
+const AllocError = std.mem.Allocator.Error;
 const ArrayList = std.ArrayList;
 const Game = @import("Game.zig");
 
 /// Callback function for a Command
-pub const CommandFn = fn (name: []const u8, args: [][]const u8, game: *Game) void;
+pub const CommandFn = fn (name: []const u8, args: [][]const u8, game: *Game) AllocError!void;
 
 pub const Room = struct {
     /// id of this room.
