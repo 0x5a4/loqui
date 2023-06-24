@@ -11,7 +11,7 @@ const StringHashMap = std.StringHashMap;
 const StringSet = StringHashMap(void);
 const AllocError = Allocator.Error;
 
-pub const RuntimeError = error {
+pub const RuntimeError = error{
     InvalidStartingRoom,
 } || AllocError;
 
