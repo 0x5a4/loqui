@@ -84,7 +84,7 @@ pub fn goto(_: []const u8, args: [][]const u8, game: *Game) !void {
         const iabl = game.interactables.items[iabl_index];
 
         if (std.mem.eql(u8, args[0], iabl.id)) {
-            try game.interactWith(iabl_index); 
+            try game.interactWith(iabl_index);
         }
     }
 }

@@ -173,7 +173,7 @@ pub fn executeAction(self: *Self, action: components.Action) AllocError!void {
             if (!self.player.inventory.contains(param)) {
                 // all of this feels wrong. maybe count items upfront and guarantee room?
                 // another table maybe?
-                const item = try self.alloc.dupe(u8, param); 
+                const item = try self.alloc.dupe(u8, param);
                 try self.player.inventory.put(item, {});
             }
         },
