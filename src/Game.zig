@@ -9,6 +9,11 @@ const Allocator = std.mem.Allocator;
 const HashMap = std.AutoHashMap;
 const StringHashMap = std.StringHashMap;
 const StringSet = StringHashMap(void);
+const AllocError = Allocator.Error;
+
+pub const RuntimeError = error {
+    InvalidStartingRoom,
+} || AllocError;
 
 pub const Player = struct {
     room_index: usize,
@@ -82,7 +87,7 @@ pub fn init(alloc: Allocator) Self {
     };
 }
 
-pub fn run(self: *Self) !void {
+pub fn run(self: *Self) RuntimeError!void {
     // apply config
     if (self.config.starting_room) |starting_room| {
         if (self.room_map.get(starting_room)) |room_index| {
@@ -90,7 +95,7 @@ pub fn run(self: *Self) !void {
         } else {
             //TODO: throw an error instead
             std.log.err("non-existent starting room '{s}'", .{starting_room});
-            return;
+            return RuntimeError.InvalidStartingRoom;
         }
     }
 
@@ -230,7 +235,7 @@ pub fn interactWith(self: *Self, interactable_index: usize) !void {
 ///
 /// The returned pointer is only valid until a new room is added.
 /// The id is duped using, so the original is still owned by the caller.
-pub fn createRoom(self: *Self, id: []const u8) !*components.Room {
+pub fn createRoom(self: *Self, id: []const u8) AllocError!*components.Room {
     if (self.room_map.get(id)) |room_index| {
         return &self.rooms.items[room_index];
     }
@@ -264,7 +269,7 @@ pub fn createInteractable(
     room: *components.Room,
     id: []const u8,
     group: ?[]const u8,
-) !*components.Interactable {
+) AllocError!*components.Interactable {
     const new_id = try self.alloc.dupe(u8, id);
     errdefer self.alloc.free(new_id);
 
@@ -299,7 +304,7 @@ pub fn createInteractable(
 /// Creates a new command.
 ///
 /// The id is duped, so the original is still owned by the caller.
-pub fn createCommand(self: *Self, id: []const u8, commandfn: *const components.CommandFn) !void {
+pub fn createCommand(self: *Self, id: []const u8, commandfn: *const components.CommandFn) AllocError!void {
     var new_id = try self.alloc.dupe(u8, id);
     errdefer self.alloc.free(new_id);
 
@@ -314,7 +319,7 @@ pub fn createCommand(self: *Self, id: []const u8, commandfn: *const components.C
 /// Creates a new text in the text array and returns its index.
 ///
 /// The text is duped, so the original is still owned by the caller.
-pub fn createText(self: *Self, text: []const u8) !usize {
+pub fn createText(self: *Self, text: []const u8) AllocError!usize {
     var new_text = try self.alloc.dupe(u8, text);
     errdefer self.alloc.free(new_text);
 
@@ -329,7 +334,7 @@ pub fn createText(self: *Self, text: []const u8) !usize {
 /// Creates a new randomized text in the randomized text array and returns its index.
 ///
 /// Each text is duped, so the original is still owned by the caller.
-pub fn createRandomizedText(self: *Self, randomized_text: [][]const u8) !usize {
+pub fn createRandomizedText(self: *Self, randomized_text: [][]const u8) AllocError!usize {
     var list = try self.alloc.alloc(usize, randomized_text.len);
     errdefer self.alloc.free(list);
 
@@ -355,7 +360,7 @@ pub fn createRandomizedText(self: *Self, randomized_text: [][]const u8) !usize {
 /// Creates a new action parameter in the action_params array and returns its index.
 ///
 /// The parameter is duped, so the original is still owned by the caller.
-pub fn createActionParam(self: *Self, param: []const u8) !usize {
+pub fn createActionParam(self: *Self, param: []const u8) AllocError!usize {
     var new_param = try self.alloc.dupe(u8, param);
     errdefer self.alloc.free(new_param);
 
@@ -370,7 +375,7 @@ pub fn createActionParam(self: *Self, param: []const u8) !usize {
 /// Creates a new predicate parameter in the predicate_params array and returns its index.
 ///
 /// The parameter is duped, so the original is still owned by the caller.
-pub fn createPredicateParam(self: *Self, param: []const u8) !usize {
+pub fn createPredicateParam(self: *Self, param: []const u8) AllocError!usize {
     var new_param = try self.alloc.dupe(u8, param);
     errdefer self.alloc.free(new_param);
 

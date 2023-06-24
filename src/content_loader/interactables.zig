@@ -4,19 +4,21 @@ const tomlz = @import("tomlz");
 const components = @import("../components.zig");
 const predicate_config = @import("predicates.zig");
 const action_config = @import("actions.zig");
+const config = @import("../config.zig");
 
+const ContentError = config.ContentError;
 const Table = tomlz.Table;
 const Game = @import("../Game.zig");
 const Interactable = components.Interactable;
 const Room = components.Room;
 
 /// Loads all Interactables contained within the table
-pub fn load(game: *Game, room: *Room, table: *const Table) !void {
+pub fn load(game: *Game, room: *Room, table: *const Table) ContentError!void {
     var table_iter = table.table.iterator();
     while (table_iter.next()) |iabl_entry| {
         if (iabl_entry.value_ptr.* != .table) {
             std.log.err("interactable value was not a table: room.{s}.{s}", .{ room.id, iabl_entry.key_ptr.* });
-            return error.InvalidInteractable;
+            return ContentError.InvalidInteractable;
         }
 
         try loadInteractable(
@@ -29,7 +31,7 @@ pub fn load(game: *Game, room: *Room, table: *const Table) !void {
 }
 
 /// Loads the Interactable object from this table
-fn loadInteractable(game: *Game, room: *Room, id: []const u8, table: *const Table) !void {
+fn loadInteractable(game: *Game, room: *Room, id: []const u8, table: *const Table) ContentError!void {
     if (room.interactables.contains(id)) {
         //TODO: warn user about implicitly named interactables like doors?
         std.log.warn("interactable {s}.{s} is being created multiple times. this is propably unintended behaviour!", .{ room.id, id });

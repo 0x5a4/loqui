@@ -1,10 +1,13 @@
 const std = @import("std");
 const mem = std.mem;
 
-const Game = @import("../Game.zig");
-const Action = @import("../components.zig").Action;
+const config = @import("../config.zig");
+const components = @import("../components.zig");
 
-pub fn load(game: *Game, action_text: []const u8) !Action {
+const Game = @import("../Game.zig");
+const Action = components.Action;
+
+pub fn load(game: *Game, action_text: []const u8) config.ContentError!Action {
     const separator = mem.indexOfScalar(u8, action_text, ':') orelse return error.InvalidAction;
 
     const id = action_text[0..separator];

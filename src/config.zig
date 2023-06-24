@@ -11,20 +11,27 @@ const Game = @import("Game.zig");
 
 const room_loader = @import("content_loader/rooms.zig");
 
-// waiting for https://github.com/mattyhall/tomlz/pull/10 to get merged
-pub const ParseError = error{
-    OutOfMemory,
-    InvalidGameConfig,
+pub const ContentError = error{
+    InvalidGameSettings,
     InvalidRoom,
     InvalidInteractable,
     InvalidAction,
     InvalidPredicate,
-} || File.OpenError || fs.Dir.OpenError || std.os.ReadError || tomlz.lex.Lexer.Error;
+} || Allocator.Error;
+
+// zig fmt: off
+pub const ConfigLoadError = ContentError 
+    || File.OpenError 
+    || fs.Dir.OpenError 
+    || std.os.ReadError 
+    || tomlz.parser.ParseError
+    || Allocator.Error;
+// zig fmt: on
 
 // If your config file is 4GiBs in size, you have other problems
 const MAX_FILE_SIZE = std.math.pow(usize, 1024, 4) * 4;
 
-pub fn load(alloc: Allocator, dir: *const Dir, game: *Game) !void {
+pub fn load(alloc: Allocator, dir: *const Dir, game: *Game) ConfigLoadError!void {
     // load game settings file
     var config_file = dir.openFile("game.toml", .{}) catch |err| {
         switch (err) {
@@ -57,7 +64,7 @@ pub fn load(alloc: Allocator, dir: *const Dir, game: *Game) !void {
     }
 }
 
-fn parseConfigFile(alloc: Allocator, file: File, game: *Game) !void {
+fn parseConfigFile(alloc: Allocator, file: File, game: *Game) ConfigLoadError!void {
     var config_contents = try file.readToEndAlloc(alloc, MAX_FILE_SIZE);
     defer alloc.free(config_contents);
 
@@ -68,7 +75,7 @@ fn parseConfigFile(alloc: Allocator, file: File, game: *Game) !void {
         game.config.starting_room = try alloc.dupe(u8, starting_room);
     } else {
         std.log.err("game config is missing required field 'starting-room'", .{});
-        return error.InvalidGameConfig;
+        return ContentError.InvalidGameSettings;
     }
 
     if (table.getString("startup-text")) |startup_text| {
@@ -76,7 +83,7 @@ fn parseConfigFile(alloc: Allocator, file: File, game: *Game) !void {
     }
 }
 
-fn parseContentFile(alloc: Allocator, file: File, game: *Game) !void {
+fn parseContentFile(alloc: Allocator, file: File, game: *Game) ConfigLoadError!void {
     var contents = try file.readToEndAlloc(alloc, MAX_FILE_SIZE);
     defer alloc.free(contents);
 

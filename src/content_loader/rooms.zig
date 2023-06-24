@@ -1,23 +1,25 @@
 const std = @import("std");
 const tomlz = @import("tomlz");
 
+const config = @import("../config.zig");
 const components = @import("../components.zig");
 const iables_loader = @import("interactables.zig");
 const predicate_loader = @import("predicates.zig");
 const action_loader = @import("actions.zig");
 
-const Table = tomlz.Table;
-const Game = @import("../Game.zig");
 const Action = components.Action;
+const ContentError = config.ContentError;
+const Game = @import("../Game.zig");
 const Room = components.Room;
+const Table = tomlz.Table;
 
 /// Loads all rooms contained within the table
-pub fn load(game: *Game, table: *const Table) !void {
+pub fn load(game: *Game, table: *const Table) ContentError!void {
     var table_iter = table.table.iterator();
     while (table_iter.next()) |room_entry| {
         if (room_entry.value_ptr.* != .table) {
             std.log.err("room value was not a table: room.{s}", .{room_entry.key_ptr.*});
-            return error.InvalidRoom;
+            return ContentError.InvalidRoom;
         }
 
         const room = try game.createRoom(room_entry.key_ptr.*);
@@ -26,7 +28,7 @@ pub fn load(game: *Game, table: *const Table) !void {
 }
 
 /// Loads the Room object from this table
-fn loadRoom(game: *Game, room: *Room, table: *const Table) !void {
+fn loadRoom(game: *Game, room: *Room, table: *const Table) ContentError!void {
     if (table.getTable("interactables")) |iables_table| {
         try iables_loader.load(game, room, &iables_table);
     }
@@ -40,12 +42,12 @@ fn loadRoom(game: *Game, room: *Room, table: *const Table) !void {
     }
 }
 
-fn loadDoors(game: *Game, room: *Room, table: *const Table) !void {
+fn loadDoors(game: *Game, room: *Room, table: *const Table) ContentError!void {
     var table_iter = table.table.iterator();
     while (table_iter.next()) |door_entry| {
         if (door_entry.value_ptr.* != .table) {
             std.log.err("room value was not a table: room.{s}.doors.{s}", .{ room.id, door_entry.key_ptr.* });
-            return error.InvalidRoom;
+            return ContentError.InvalidRoom;
         }
 
         try loadDoor(

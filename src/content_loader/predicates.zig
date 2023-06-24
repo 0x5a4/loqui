@@ -1,10 +1,12 @@
 const std = @import("std");
 const mem = std.mem;
 
+const config = @import("../config.zig");
+
 const Game = @import("../Game.zig");
 const Predicate = @import("../components.zig").Predicate;
 
-pub fn load(game: *Game, predicate_text: []const u8) !Predicate {
+pub fn load(game: *Game, predicate_text: []const u8) config.ContentError!Predicate {
     const separator = mem.indexOfScalar(u8, predicate_text, ':') orelse return error.InvalidAction;
 
     const id = predicate_text[0..separator];
