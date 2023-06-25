@@ -6,6 +6,7 @@ const Allocator = std.mem.Allocator;
 const Dir = fs.Dir;
 const File = fs.File;
 const IterableDir = fs.IterableDir;
+const Table = tomlz.Table;
 
 const Game = @import("Game.zig");
 
@@ -34,11 +35,8 @@ const MAX_FILE_SIZE = std.math.pow(usize, 1024, 4) * 4;
 pub fn load(alloc: Allocator, dir: *const Dir, game: *Game) ConfigLoadError!void {
     // load game settings file
     var config_file = dir.openFile("game.toml", .{}) catch |err| {
-        switch (err) {
-            error.FileNotFound => {
-                std.log.err("'game.toml' was not found", .{});
-            },
-            else => {},
+        if (err == error.FileNotFound) {
+            std.log.err("'game.toml' was not found", .{});
         }
 
         return err;
@@ -59,7 +57,11 @@ pub fn load(alloc: Allocator, dir: *const Dir, game: *Game) ConfigLoadError!void
 
         if (std.mem.endsWith(u8, entry.basename, ".toml")) {
             const file = try entry.dir.openFile(entry.basename, .{});
-            try parseContentFile(alloc, file, game);
+
+            parseContentFile(alloc, file, game) catch |err| {
+                std.log.err("occured while loading 'content/{s}'", .{entry.path});
+                return err;
+            };
         }
     }
 }
@@ -92,7 +94,10 @@ fn parseContentFile(alloc: Allocator, file: File, game: *Game) ConfigLoadError!v
 
     // Load rooms
     if (config.getTable("rooms")) |rooms_table| {
-        try room_loader.load(game, &rooms_table);
+        try room_loader.load(game, rooms_table);
+    } else if (config.table.get("rooms")) |actual| {
+        std.log.err("expected room to be of type 'table' but was '{s}'", .{@tagName(actual)});
+        return error.InvalidRoom;
     } else if (config.contains("room")) {
         std.log.warn("no table 'rooms' found, but found one named 'room'. Did you misspell it? ", .{});
     }

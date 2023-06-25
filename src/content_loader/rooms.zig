@@ -14,7 +14,7 @@ const Room = components.Room;
 const Table = tomlz.Table;
 
 /// Loads all rooms contained within the table
-pub fn load(game: *Game, table: *const Table) ContentError!void {
+pub fn load(game: *Game, table: Table) ContentError!void {
     var table_iter = table.table.iterator();
     while (table_iter.next()) |room_entry| {
         if (room_entry.value_ptr.* != .table) {
@@ -23,26 +23,26 @@ pub fn load(game: *Game, table: *const Table) ContentError!void {
         }
 
         const room = try game.createRoom(room_entry.key_ptr.*);
-        try loadRoom(game, room, @ptrCast(*const Table, room_entry.value_ptr));
+        try loadRoom(game, room, room_entry.value_ptr.*.table);
     }
 }
 
 /// Loads the Room object from this table
-fn loadRoom(game: *Game, room: *Room, table: *const Table) ContentError!void {
-    if (table.getTable("interactables")) |iables_table| {
-        try iables_loader.load(game, room, &iables_table);
+fn loadRoom(game: *Game, room: *Room, table: Table) ContentError!void {
+    if (try getAssertType(Table, table, "interactables", .table)) |iables_table| {
+        try iables_loader.load(game, room, iables_table);
     }
 
-    if (table.getTable("iabl")) |iables_table| {
-        try iables_loader.load(game, room, &iables_table);
+    if (try getAssertType(Table, table, "iabl", .table)) |iables_table| {
+        try iables_loader.load(game, room, iables_table);
     }
 
-    if (table.getTable("doors")) |doors_table| {
-        try loadDoors(game, room, &doors_table);
+    if (try getAssertType(Table, table, "doors", .table)) |doors_table| {
+        try loadDoors(game, room, doors_table);
     }
 }
 
-fn loadDoors(game: *Game, room: *Room, table: *const Table) ContentError!void {
+fn loadDoors(game: *Game, room: *Room, table: Table) ContentError!void {
     var table_iter = table.table.iterator();
     while (table_iter.next()) |door_entry| {
         if (door_entry.value_ptr.* != .table) {
@@ -50,19 +50,14 @@ fn loadDoors(game: *Game, room: *Room, table: *const Table) ContentError!void {
             return ContentError.InvalidRoom;
         }
 
-        try loadDoor(
-            game,
-            room,
-            door_entry.key_ptr.*,
-            @ptrCast(*const Table, door_entry.value_ptr),
-        );
+        try loadDoor(game, room, door_entry.key_ptr.*, door_entry.value_ptr.*.table);
     }
 }
 
-fn loadDoor(game: *Game, room: *Room, to: []const u8, table: *const Table) !void {
+fn loadDoor(game: *Game, room: *Room, to: []const u8, table: Table) !void {
     if (room.interactables.contains(to)) {
         //TODO: warn user about implicitly named interactables like doors?
-        std.log.warn("interactable {s}.{s} is being created multiple times. this is propably unintended behaviour!", .{ room.id, to });
+        std.log.warn("interactable {s}.{s} is being created multiple times.", .{ room.id, to });
     }
 
     const iabl = try game.createInteractable(room, to, "doors");
@@ -71,7 +66,7 @@ fn loadDoor(game: *Game, room: *Room, to: []const u8, table: *const Table) !void
     iabl.on_interact = Action{ .move = param };
 
     // display-name
-    if (table.getString("display-name")) |display_name| {
+    if (try getAssertType([]const u8, table, "display-name", .string)) |display_name| {
         iabl.display_name = try game.createText(display_name);
     }
 
@@ -94,22 +89,34 @@ fn loadDoor(game: *Game, room: *Room, to: []const u8, table: *const Table) !void
     }
 
     // require
-    if (table.getString("require")) |text| {
+    if (try getAssertType([]const u8, table, "require", .string)) |text| {
         iabl.require = try predicate_loader.load(game, text);
     }
 
     // on-interact-locked
-    if (table.getString("on-interact-locked")) |text| {
+    if (try getAssertType([]const u8, table, "on-interact-locked", .string)) |text| {
         iabl.on_interact_locked = try action_loader.load(game, text);
     }
 
     // hidden
-    if (table.getBool("hidden")) |value| {
+    if (try getAssertType(bool, table, "hidden", .boolean)) |value| {
         iabl.hidden = value;
     }
 
     // once
-    if (table.getBool("once")) |value| {
+    if (try getAssertType(bool, table, "once", .boolean)) |value| {
         iabl.once = value;
+    }
+}
+
+fn getAssertType(comptime T: anytype, table: Table, key: []const u8, comptime expectedType: anytype) !?T {
+    const value = table.table.get(key) orelse return null;
+
+    switch (value) {
+        expectedType => |x| return x,
+        else => {
+            std.log.err("expected room.{s} to be of type '{s}' but was '{s}'", .{ key, @tagName(expectedType), @tagName(value) });
+            return error.InvalidRoom;
+        },
     }
 }
