@@ -3,7 +3,8 @@
     - [ ] Disable builtin commands
     - [X] Startup text
 - [ ] Load Base components  
-    - [ ] spell and typecheck obvious mistakes
+    - [ ] spellcheck obvious mistakes
+    - [X] typecheck 
     - [X] Rooms
     - [X] Interactables
     - [X] Actions
@@ -41,7 +42,7 @@
         - [ ] Give Item
         - [ ] Remove Item
         - [ ] Move
-- [ ] Generic Input/Output interface(similar to std.mem.Allocator?)
+- [ ] Generic Input/Output interface
     - [ ] Integration Tests
 - [ ] Define Dialog
 - [ ] NPC syntax
