@@ -14,7 +14,7 @@
     - [X] Inventory
 - [ ] Interface
     - [X] Basic prompts
-    - [ ] Animated Text
+    - [X] Animated Text
     - [ ] Selections
 - [X] Rooms
     - [X] Door syntax

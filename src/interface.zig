@@ -1,6 +1,8 @@
 const std = @import("std");
 const ansi = @import("ansi-term");
 
+const Allocator = std.mem.Allocator;
+
 pub const PromptOptions = struct {
     /// whether to erase both prompt and answer when done
     erase: bool = true,
@@ -25,7 +27,7 @@ pub const PromptOptions = struct {
 ///
 /// Caller owns returned memory.
 pub fn prompt(
-    alloc: std.mem.Allocator,
+    alloc: Allocator,
     question: []const u8,
     outStream: anytype,
     inStream: anytype,
@@ -91,4 +93,36 @@ pub fn prompt(
     }
 
     return try buffer.toOwnedSlice();
+}
+
+pub const AnimationOptions = struct { interval: u64, punctuation_factor: u64 = 1 };
+
+pub fn animatedText(
+    alloc: Allocator,
+    comptime fmt: []const u8,
+    fmtArgs: anytype,
+    writer: anytype,
+    options: AnimationOptions,
+) !void {
+    // make this global
+    var buffer = std.ArrayList(u8).init(alloc);
+    var stream = buffer.writer();
+    defer buffer.deinit();
+
+    try stream.print(fmt, fmtArgs);
+
+    var i: usize = 0;
+    while (i < buffer.items.len) : (i += 1) {
+        const char = buffer.items[i];
+
+        try writer.writeByte(char);
+
+        const delay = switch (char) {
+            '\n', '0' => continue,
+            '.', '!', '?', ',', '-', ';', ':' => options.interval * options.punctuation_factor,
+            else => options.interval,
+        };
+
+        std.time.sleep(delay);
+    }
 }

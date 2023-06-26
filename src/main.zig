@@ -8,8 +8,7 @@ const process = std.process;
 const Game = @import("Game.zig");
 
 pub const std_options = struct {
-    pub const log_level = .info;
-    // pub const log_level = if (builtin.mode == std.builtin.OptimizeMode.Debug) .debug else .info;
+    pub const log_level = if (builtin.mode == std.builtin.OptimizeMode.Debug) .debug else .info;
 };
 
 pub fn main() !void {

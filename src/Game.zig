@@ -149,9 +149,17 @@ pub fn prompt(self: *Self, question: []const u8) ?[]const u8 {
     };
 }
 
-pub fn print(_: *const Self, comptime fmt: []const u8, args: anytype) void {
-    var stdout = std.io.getStdOut().writer();
-    stdout.print(fmt, args) catch {};
+pub fn print(self: *const Self, comptime fmt: []const u8, args: anytype) void {
+    interface.animatedText(
+        self.alloc,
+        fmt,
+        args,
+        std.io.getStdOut().writer(),
+        .{
+            .interval = std.time.ns_per_ms * 35,
+            .punctuation_factor = 4,
+        },
+    ) catch return;
 }
 
 pub fn executeAction(self: *Self, action: components.Action) AllocError!void {
